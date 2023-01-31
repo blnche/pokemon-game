@@ -1,7 +1,6 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
-
-console.log(collisions);
+console.log(battleZonesData)
 
 canvas.width = 1024
 canvas.height = 576
@@ -10,6 +9,11 @@ const collisionsMap =[]
 for (let i = 0; i < collisions.length; i+= 70) {
     collisionsMap.push(collisions.slice(i, 70 + i))
 }
+const battleZonesMap =[]
+for (let i = 0; i < battleZonesData.length; i+= 70) {
+    battleZonesMap.push(battleZonesData.slice(i, 70 + i))
+}
+console.log(battleZonesMap)
 
 const boundaries = []
 
@@ -32,7 +36,21 @@ collisionsMap.forEach((row, i) => {
     })
 })
 
-console.log(boundaries);
+const battleZones = []
+
+battleZonesMap.forEach((row, i) => {
+    row.forEach((symbol, j) => {
+        if (symbol === 1025)
+            battleZones.push(
+                new Boundary({
+                    position: {
+                        x: j * Boundary.width + offset.x,
+                        y: i * Boundary.height + offset.y
+                    }
+                })
+            )
+    })
+})
 
 const image = new Image()
 image.src = './Assets/Img/PelletIsle.png'
@@ -68,7 +86,7 @@ const player = new Sprite({
         down: playerDownImage
     }
 })
-console.log(player)
+
 
 const background = new Sprite({
     position: {
@@ -104,7 +122,7 @@ const keys = {
 
 }
 
-const movables = [background, ...boundaries, foreground]
+const movables = [background, ...boundaries, foreground, ...battleZones]
 
 function rectangularCollision ({rectangle1, rectangle2}) {
     return (
@@ -118,8 +136,12 @@ function rectangularCollision ({rectangle1, rectangle2}) {
 function animate () {
     window.requestAnimationFrame(animate)
     background.draw()
-    boundaries.forEach(boundary => {
+    boundaries.forEach((boundary) => {
         boundary.draw()
+    })
+    battleZones.forEach((battleZone) => {
+        battleZone.draw()
+        
     })
     player.draw()
     foreground.draw()
@@ -144,8 +166,19 @@ function animate () {
                     }
                 })
             ) {
-                console.log('colliding')
                 moving = false
+                break
+            }
+        }    
+        for (let i=0; i < battleZones.length; i++) {
+            const battleZone = battleZones [i]
+            if (
+                rectangularCollision({
+                    rectangle1: player,
+                    rectangle2: battleZone
+                })
+            ) {
+                console.log('battle zone collision');
                 break
             }
         }    
@@ -172,11 +205,22 @@ function animate () {
                     }
                 })
             ) {
-                console.log('colliding')
                 moving = false
                 break
             }
-        }    
+        } 
+        for (let i=0; i < battleZones.length; i++) {
+            const battleZone = battleZones [i]
+            if (
+                rectangularCollision({
+                    rectangle1: player,
+                    rectangle2: battleZone
+                })
+            ) {
+                console.log('battle zone collision');
+                break
+            }
+        }       
 
         if (moving)
             movables.forEach((movable) => 
@@ -199,11 +243,22 @@ function animate () {
                     }
                 })
             ) {
-                console.log('colliding')
                 moving = false
                 break
             }
-        }    
+        }   
+        for (let i=0; i < battleZones.length; i++) {
+            const battleZone = battleZones [i]
+            if (
+                rectangularCollision({
+                    rectangle1: player,
+                    rectangle2: battleZone
+                })
+            ) {
+                console.log('battle zone collision');
+                break
+            }
+        }     
 
         if (moving)
             movables.forEach((movable) => 
@@ -226,8 +281,19 @@ function animate () {
                     }
                 })
             ) {
-                console.log('colliding')
                 moving = false
+                break
+            }
+        }    
+        for (let i=0; i < battleZones.length; i++) {
+            const battleZone = battleZones [i]
+            if (
+                rectangularCollision({
+                    rectangle1: player,
+                    rectangle2: battleZone
+                })
+            ) {
+                console.log('battle zone collision');
                 break
             }
         }    
@@ -276,5 +342,4 @@ window.addEventListener('keyup', (e) => {
             keys.ArrowRight.pressed = false            
             break
     }
-    console.log(keys)
 })
